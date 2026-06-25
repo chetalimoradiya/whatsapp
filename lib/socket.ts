@@ -1,3 +1,4 @@
+//---------localhost--------------
 // import { io } from "socket.io-client";
 
 // export const socket = io(
@@ -7,11 +8,24 @@
 //   }
 // );
 
+//---------------deploy------------------
 
+
+// import { io } from "socket.io-client";
+
+// export const socket = io(
+//   "https://whatsapp-b0kiesa2e-chetali.vercel.app/",
+//   {
+//     autoConnect: false
+//   }
+// );
+
+
+//-----ipaddress-----------
 import { io } from "socket.io-client";
 
 export const socket = io(
-  "https://whatsapp-b0kiesa2e-chetali.vercel.app/",
+  "http://192.168.1.102:3001",
   {
     autoConnect: false
   }

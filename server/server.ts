@@ -196,9 +196,21 @@ new Date()
 
   }
 );
+//---------localhost-----------
+// server.listen(
+//   3001,
+//   () => {
 
+//     console.log(
+//       "Socket Server Running"
+//     );
+
+//   }
+// );
+//-----------ipaddress----------
 server.listen(
   3001,
+  "0.0.0.0",
   () => {
 
     console.log(
