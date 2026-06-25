@@ -1,65 +1,486 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { socket } from "../lib/socket";
+
+import { Message } from "../types/message";
+import ChatBox from "../components/ChatBox";
+import OnlineUsers from "../components/OnlineUsers";
+import RoomForm from "../components/RoomForm";
+import MessageInput from "../components/MessageInput";
+import ScrollButton from "../components/ScrollButton";
+import ThemeToggle from "../components/ThemeToggle";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import toast,{Toaster} from "react-hot-toast";
+import SearchBar from "../components/SearchBar";
+import ReplyBox from "../components/ReplyBox";
 
 export default function Home() {
+
+  const [username, setUsername] =
+    useState("");
+
+  const [room, setRoom] =
+    useState("");
+
+  const [message, setMessage] =
+    useState("");
+
+  const [search,setSearch] =useState("");
+  const [reply,setReply] = useState("");
+
+
+const [usersStatus,setUsersStatus] =useState<{
+
+onlineUsers: Record<string, boolean>;
+
+lastSeenUsers: Record<string, string>;
+
+}>({
+
+onlineUsers: {},
+
+lastSeenUsers: {}
+
+});
+
+  const [messages, setMessages] =
+    useState<Message[]>([]);
+
+  const [onlineUsers, setOnlineUsers] =
+    useState(0);
+
+   const [dark, setDark] = useState(true);
+
+const [
+typingUser,
+setTypingUser
+] =
+useState("");
+
+
+
+  const [socketId, setSocketId] =
+    useState("");
+
+  useEffect(() => {
+
+    if (!socket.connected) {
+
+      socket.connect();
+
+    }
+
+    if (socket.connected) {
+
+      setSocketId(
+        socket.id || ""
+      );
+
+    }
+
+    socket.on(
+      "connect",
+      () => {
+
+        setSocketId(
+          socket.id || ""
+        );
+
+      }
+    );
+
+    // Online Users
+
+    socket.on(
+      "online-users",
+      (count: number) => {
+
+        setOnlineUsers(
+          count
+        );
+
+      }
+    );
+
+    // Receive Message
+
+    socket.on(
+      "receive-message",
+      (msg: Message) => {
+
+        setMessages(
+          (prev) => [
+            ...prev,
+            msg
+          ]
+        );
+
+      }
+    );
+
+    
+
+//user-status
+socket.on(
+  "users-status",
+  (data) => {
+
+    setUsersStatus(
+      data
+    );
+
+  }
+);
+
+    // System Message
+
+   socket.on(
+  "system-message",
+  (
+    msg: Message
+  ) => {
+
+    setMessages(
+      (
+        prev
+      ) => [
+
+        ...prev,
+
+        msg
+
+      ]
+    );
+
+  }
+);
+    // Typing
+
+ let timer: NodeJS.Timeout;
+
+socket.on(
+  "user-typing",
+  (
+    user: string
+  ) => {
+
+    setTypingUser(
+      user
+    );
+
+    clearTimeout(
+      timer
+    );
+
+    timer =
+      setTimeout(
+        () => {
+
+          setTypingUser(
+            ""
+          );
+
+        },
+        1500
+      );
+
+  }
+);
+
+    return () => {
+
+      socket.off(
+        "connect"
+      );
+
+      socket.off(
+        "online-users"
+      );
+
+      socket.off(
+        "receive-message"
+      );
+
+      socket.off(
+        "system-message"
+      );
+
+      socket.off(
+        "user-typing"
+      );
+     socket.off("last-seen-update");
+     socket.off(
+"users-status"
+);
+    };
+
+  }, []);
+
+  // Join Room
+
+  const joinRoom = () => {
+
+    if (
+      !username ||
+      !room
+    )
+      return;
+
+    socket.emit(
+      "join-room",
+      {
+
+        room,
+
+        user:
+        username
+
+      }
+    );
+
+   toast.success(
+
+`Joined ${room}`
+
+);
+
+  };
+
+  // Send Message
+
+  const sendMessage = () => {
+
+    if (
+      !message ||
+      !room
+    )
+      return;
+
+    const data = {
+
+      user:
+      username,
+
+      text:
+      message,
+
+      room,
+
+      time:
+      new Date()
+      .toLocaleTimeString(),
+
+      type:
+      "user",
+
+      replyTo:
+      reply
+
+    };
+
+    socket.emit(
+      "send-message",
+      data
+    );
+    toast.success(
+
+"Message Sent"
+
+);
+    setReply("");
+
+
+    setMessage("");
+
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+
+   <div className="layout">
+
+<Toaster/>
+
+<Sidebar
+
+username={username}
+
+/>
+
+<div
+className={
+dark
+?
+"container"
+:
+"container light"
+}
+>
+
+<Header
+
+room={room}
+
+selectedUser={username}
+
+online={
+usersStatus.onlineUsers[
+username
+] || false
+}
+
+lastSeen={
+usersStatus.lastSeenUsers[
+username
+] || ""
+}
+
+/>
+
+<ThemeToggle
+
+dark={dark}
+
+setDark={setDark}
+
+/>
+
+<h1>
+
+WhatsApp 
+
+</h1>
+
+<OnlineUsers
+count={onlineUsers}
+/>
+
+
+
+<h3>
+
+Socket ID :
+
+{socketId}
+
+</h3>
+
+
+
+<input
+
+placeholder="Enter Username"
+
+value={username}
+
+onChange={(e)=>
+
+setUsername(
+e.target.value
+)
+
+}
+
+/>
+
+<br/>
+
+<br/>
+
+<RoomForm
+
+room={room}
+
+setRoom={setRoom}
+
+joinRoom={joinRoom}
+
+/>
+
+
+<SearchBar
+
+search={search}
+
+setSearch={setSearch}
+
+/>
+
+{
+
+reply &&
+
+<ReplyBox
+
+reply={reply}
+
+clearReply={()=>
+
+setReply("")
+
+}
+
+/>
+
+}
+
+<MessageInput
+
+message={message}
+
+setMessage={setMessage}
+
+sendMessage={sendMessage}
+
+room={room}
+
+username={username}
+
+/>
+
+<ChatBox
+
+messages={
+
+messages.filter(
+
+(msg)=>
+
+msg.text
+.toLowerCase()
+.includes(
+search
+.toLowerCase()
+)
+
+||
+
+msg.user
+.toLowerCase()
+.includes(
+search
+.toLowerCase()
+)
+
+)
+
+}
+
+currentUser={username}
+
+typingUser={typingUser}
+setReply={setReply}
+
+/>
+
+
+
+<ScrollButton/>
+
+</div>
+
+</div>
+  )
 }
