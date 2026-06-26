@@ -1,52 +1,28 @@
 
-
 interface Props {
-
   room: string;
-
   selectedUser: string;
   online: boolean;
   lastSeen: string;
-
 }
 
 export default function Header({
-
   room,
-  lastSeen
-
+  online,
+  lastSeen,
 }: Props) {
-
   return (
-
     <div className="header">
+      <h2>#{room}</h2>
 
-<h2>
-
-#{room}
-
-</h2>
-
-<p>
-
-  {
-
-          lastSeen
-
-          ?
-
-          `Last seen ${lastSeen}`
-
-          :
-
-          "🟢 Online"
-
-        }
-
-</p>
-
-</div>
-
+      <p>
+        {online
+          ? "🟢 Online"
+          : lastSeen
+          ? `Last seen ${lastSeen}`
+          : "🔴 Offline"}
+      </p>
+    </div>
   );
-
 }
+
