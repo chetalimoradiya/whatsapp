@@ -12,8 +12,8 @@ interface Props {
 }
 
 export default function RoomForm({
-
-  room,
+   
+  room, 
 
   setRoom,
 
@@ -24,7 +24,7 @@ export default function RoomForm({
   return (
 
     <>
-
+<div>
       <input
 
         placeholder="Room"
@@ -48,7 +48,7 @@ export default function RoomForm({
         Join Room
 
       </button>
-
+ </div>
     </>
 
   );

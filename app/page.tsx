@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "../lib/socket";
 import { Message } from "../types/message";
-
 import ChatBox from "../components/ChatBox";
 import OnlineUsers from "../components/OnlineUsers";
 import RoomForm from "../components/RoomForm";
@@ -111,7 +110,7 @@ export default function Home() {
     <div className="layout">
       <Toaster />
 
-      {/* ✅ FIXED SIDEBAR */}
+    
       <Sidebar
         usersStatus={usersStatus}
         username={currentUser}
@@ -139,8 +138,7 @@ export default function Home() {
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        <br />
-        <br />
+       
 
         <RoomForm
           room={room}

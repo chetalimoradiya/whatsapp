@@ -8,7 +8,7 @@ window.scrollTo({
 
 top:
 document.body.scrollHeight,
-
+         
 behavior:
 "smooth"
 
@@ -17,18 +17,8 @@ behavior:
 };
 
 return(
+<></>
 
-<button
-
-className="scroll-btn"
-
-onClick={scrollBottom}
-
->
-
-⬇️
-
-</button>
 
 );
 

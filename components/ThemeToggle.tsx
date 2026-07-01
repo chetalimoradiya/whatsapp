@@ -12,43 +12,21 @@ React.SetStateAction<boolean>
 }
 
 export default function ThemeToggle({
-
-dark,
-
-setDark
-
-}:Props){
-
+dark,setDark}:Props){
 return(
-
-<button
-
-onClick={()=>{
-
-setDark(
-!dark
-);
-
+<button onClick={()=>{ setDark(!dark);
 }}
-
 >
-
-{
-
-dark
-
+{dark
 ?
-
 "☀️"
-
 :
-
 "🌙"
-
 }
-
 </button>
 
 );
 
 }
+ 
+

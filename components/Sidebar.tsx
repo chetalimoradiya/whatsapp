@@ -10,7 +10,7 @@ export default function Sidebar({
   username,
   usersStatus,
 }: Props) {
-
+  
   const isOnline =
     usersStatus.onlineUsers[username] || false;
 
@@ -34,9 +34,9 @@ export default function Sidebar({
           <small>
             {isOnline
               ? "🟢 Online"
-              : lastSeen
+              : lastSeen                                  
                 ? `Last seen ${lastSeen}`
-                : "Offline"}
+                : "🔴Offline"}
           </small>
         </div>
       </div>
